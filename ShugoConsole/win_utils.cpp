@@ -9,11 +9,12 @@ namespace shugoconsole::WinUtils
 std::filesystem::path GetModulePath(HMODULE hModule)
 {
 	std::wstring exePath(MAX_PATH, L'\0');
-	const size_t charCount = ::GetModuleFileNameExW(::GetCurrentProcess(), hModule, exePath.data(), exePath.size());
+	const size_t charCount = ::GetModuleFileNameExW(
+		::GetCurrentProcess(), hModule, exePath.data(), static_cast<DWORD>(exePath.size()));
 	if (charCount > MAX_PATH)
 	{
 		exePath.resize(charCount);
-		::GetModuleFileNameExW(::GetCurrentProcess(), hModule, exePath.data(), exePath.size());
+		::GetModuleFileNameExW(::GetCurrentProcess(), hModule, exePath.data(), static_cast<DWORD>(exePath.size()));
 	}
 	// trim trailing null characters
 	exePath.erase(
