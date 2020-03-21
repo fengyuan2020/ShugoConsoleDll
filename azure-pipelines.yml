@@ -15,26 +15,37 @@ jobs:
   strategy:
     matrix:
       64-bit Debug:
-        BuildType: Debug
+        BuildConfiguration: Debug
         CMakeArgs: '-G "Visual Studio 16 2019" -A x64'
       64-bit Release:
-        BuildType: Release
+        BuildConfiguration: Release
         CMakeArgs: '-G "Visual Studio 16 2019" -A x64'
       32-bit Debug:
-        BuildType: Debug
+        BuildConfiguration: Debug
         CMakeArgs: '-G "Visual Studio 16 2019" -A Win32'
       32-bit Release:
-        BuildType: Release
+        BuildConfiguration: Release
         CMakeArgs: '-G "Visual Studio 16 2019" -A Win32'
   steps:
   - checkout: self
     submodules: true
   - task: CMake@1
-    displayName: 'CMake .. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType)'
+    displayName: 'cmake configure'
     inputs:
-      cmakeArgs: '.. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType)'
+      cmakeArgs: '.. $(CMakeArgs)'
   - task: CMake@1
-    displayName: 'CMake --build . --config $(BuildType)'
+    displayName: 'build'
     inputs:
-      cmakeArgs: '--build . --config $(BuildType)'
+      cmakeArgs: '--build . --config $(BuildConfiguration)'
+  - task: CopyFiles@2
+    displayName: 'copy files'
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)'
+      contents: '**/$(BuildConfiguration)/**/?(*.exe|*.dll|*.pdb)'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'publish artifacts'
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: drop
 
