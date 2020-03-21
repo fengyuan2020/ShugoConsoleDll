@@ -1,4 +1,5 @@
 # Starter pipeline
+
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
@@ -6,15 +7,34 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'windows-2019'
+jobs:
+- job:
+  displayName: Windows
+  pool:
+    vmImage: 'windows-2019'
+  strategy:
+    matrix:
+      64-bit Debug:
+        BuildType: Debug
+        CMakeArgs: '-G "Visual Studio 16 2019" -A x64'
+      64-bit Release:
+        BuildType: Release
+        CMakeArgs: '-G "Visual Studio 16 2019" -A x64'
+      32-bit Debug:
+        BuildType: Debug
+        CMakeArgs: '-G "Visual Studio 16 2019" -A Win32'
+      32-bit Release:
+        BuildType: Release
+        CMakeArgs: '-G "Visual Studio 16 2019" -A Win32'
+  steps:
+  - checkout: self
+    submodules: true
+  - task: CMake@1
+    displayName: 'CMake .. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType)'
+    inputs:
+      cmakeArgs: '.. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType)'
+  - task: CMake@1
+    displayName: 'CMake --build . --config $(BuildType)'
+    inputs:
+      cmakeArgs: '--build . --config $(BuildType)'
 
-steps:
-- checkout: self
-  submodules: true
-- script: |
-    mkdir -p out\\x64
-    cd out\\x64
-    cmake -G "Visual Studio 16 2019" -A x64 ../..
-    cmake --build . --config Release
-  displayName: 'build'
