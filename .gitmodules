@@ -8,3 +8,6 @@
 [submodule "libs/toml11"]
 	path = libs/toml11
 	url = https://github.com/ToruNiina/toml11.git
+[submodule "libs/detours-cmake/Detours"]
+	path = libs/detours_cmake/Detours
+	url = https://github.com/microsoft/Detours
