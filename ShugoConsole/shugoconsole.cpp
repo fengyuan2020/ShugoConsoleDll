@@ -242,6 +242,7 @@ class instance final : public base_instance
 	static DWORD CALLBACK ThreadEntryPoint(void* thisPtr)
 	{
 		static_cast<instance*>(thisPtr)->Thread();
+		return 0;
 	}
 
   public:
