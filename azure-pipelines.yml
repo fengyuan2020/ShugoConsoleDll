@@ -11,8 +11,8 @@ pool:
 
 steps:
 - script: |
-    mkdir -p out/x64
-    cd out/x64
+    mkdir -p out\\x64
+    cd out\\x64
     cmake -G "Visual Studio 16 2019" -A x64 ../..
     cmake --build . --config Release
   displayName: 'build'
