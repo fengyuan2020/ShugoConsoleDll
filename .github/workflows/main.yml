@@ -16,11 +16,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
+        path: src
         submodules: recursive
     - name: cmake build
-      uses: lukka/run-cmake@v0.11
-      with:
-        cmakeBuildType: ${{ matrix.buildType }}
-        cmakeGenerator: ${{ matrix.generator }}
-        cmakeAppendedArgs: -A ${{ matrix.arch }}
-        buildDirectory: ${{ github.workspace }}/build
+      shell: powershell
+      run: |
+        New-Item -Name build -ItemType directory
+        cmake -G "${{ matrix.generator }}" -A ${{ matrix.arch }} -S src -B build
+        cmake --build .
