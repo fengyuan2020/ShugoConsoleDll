@@ -9,10 +9,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
-        generator: ["Visual Studio 16 2019"]
-        configuration: [Release, Debug]
         arch: [Win32, x64]
+        configuration: [Release, Debug]
+        generator: ["Visual Studio 16 2019"]
+        os: [windows-latest]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -20,6 +20,6 @@ jobs:
     - name: Build CMake
       uses: ashutoshvarma/action-cmake-build@v1
       with:
-        configure-options: -G ${{ matrix.generator }} -A ${{ matrix.arch }}
+        configure-options: '-G "${{ matrix.generator }}" -A ${{ matrix.arch }}'
         build-type: ${{ matrix.configuration }}
         run-test: false
