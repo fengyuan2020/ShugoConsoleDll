@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows]
+        os: [windows-latest]
         generator: ["Visual Studio 16 2019"]
         configuration: [Release, Debug]
         arch: [Win32, x64]
