@@ -10,16 +10,17 @@ jobs:
     strategy:
       matrix:
         arch: [Win32, x64]
-        configuration: [Release, Debug]
-        generator: ['Visual Studio 16 2019']
+        buildType: [Release, Debug]
+        generator: [Visual Studio 16 2019]
         os: [windows-latest]
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Build CMake
-      uses: ashutoshvarma/action-cmake-build@v1
+    - name: cmake build
+      uses: lukka/run-cmake@v0.11
       with:
-        configure-options: -G "${{ matrix.generator }}" -A ${{ matrix.arch }}
-        build-type: ${{ matrix.configuration }}
-        run-test: false
+        cmakeBuildType: ${{ matrix.buildType }}
+        cmakeGenerator: ${{ matrix.generator }}
+        cmakeAppendedArgs: -A ${{ matrix.arch }}
+        buildDirectory: ${{ github.workspace }}/build
