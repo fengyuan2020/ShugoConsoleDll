@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows]
+        generator: ["Visual Studio 16 2019"]
+        configuration: [Release, Debug]
+        arch: [Win32, x64]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+    - name: Build CMake
+      uses: ashutoshvarma/action-cmake-build@v1
+      with:
+        configure-options: -G ${{ matrix.generator }} -A ${{ matrix.arch }}
+        build-type: ${{ matrix.configuration }}
+        run-test: false
