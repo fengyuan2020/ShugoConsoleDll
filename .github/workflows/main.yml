@@ -21,6 +21,7 @@ jobs:
     - name: cmake build
       shell: powershell
       run: |
-        New-Item -Name build -ItemType directory
+        New-Item -Name build -ItemType directory | Out-Null
         cmake -G "${{ matrix.generator }}" -A ${{ matrix.arch }} -S src -B build
-        cmake --build .
+        cmake --build build
+        
