@@ -14,14 +14,22 @@ jobs:
         generator: [Visual Studio 16 2019]
         os: [windows-latest]
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
         path: src
         submodules: recursive
-    - name: cmake build
+    - name: CMake build
       shell: powershell
       run: |
         New-Item -Name build -ItemType directory | Out-Null
         cmake -G "${{ matrix.generator }}" -A ${{ matrix.arch }} -S src -B build
-        cmake --build build
+        cmake --build build --config ${{ matrix.buildType }}
+        New-Item -Name out -ItemType directory | Out-Null
+        Copy-Item "build/${{ matrix.buildType }}/version.dll" -Destination "out" | Out-Null
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: shugoconsoledll-${{ matrix.arch }}-${{ matrix.buildType }}
+        path: out
         
