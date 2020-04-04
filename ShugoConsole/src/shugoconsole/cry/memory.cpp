@@ -1,26 +1,27 @@
-#include "memory_parser.hpp"
-#include "logger.hpp"
-#include "win_utils.hpp"
+#include "shugoconsole/cry/memory.hpp"
+#include "shugoconsole/log.hpp"
+#include "shugoconsole/win/utils.hpp"
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-namespace shugoconsole
+namespace shugoconsole::cry
 {
-using namespace log;
 
-static cryengine::cvar* LookupPage(
+static cry::cvar* LookupPage(
 	const MEMORY_BASIC_INFORMATION& memoryBasicInformation,
-	const cryengine::cvar_pattern& cvarDef,
+	const cry::cvar::pattern& cvarDef,
 	std::vector<std::byte>& buffer)
 {
-	std::byte* currentReadAddress = static_cast<std::byte*>(memoryBasicInformation.BaseAddress);
+	std::byte* currentReadAddress =
+		static_cast<std::byte*>(memoryBasicInformation.BaseAddress);
 	size_t remainingBytesInRegion = memoryBasicInformation.RegionSize;
 
 	for (;;)
 	{
-		const size_t currentBufferSize = std::min(buffer.size(), remainingBytesInRegion);
+		const size_t currentBufferSize =
+			std::min(buffer.size(), remainingBytesInRegion);
 		SIZE_T bytesRead = 0;
 
 		if (!::ReadProcessMemory(
@@ -30,36 +31,38 @@ static cryengine::cvar* LookupPage(
 				currentBufferSize,
 				&bytesRead))
 		{
-			debug(
-				"Could not read {:d} bytes at address {}, stopping region scan: {}",
+			log::debug(
+				"Could not read {:d} bytes at address {}, stopping region "
+				"scan: {}",
 				currentBufferSize,
 				static_cast<void*>(currentReadAddress),
-				WinUtils::GetLastErrorAsString());
+				win::get_last_error_as_string());
 			break;
 		}
 
 		if (bytesRead == 0)
 		{
-			debug(
+			log::debug(
 				"Read 0 bytes at address {}, stopping region scan",
 				static_cast<void*>(currentReadAddress));
 			break;
 		}
 
-		// Stop reading buffer before we have an incomplete name
+		// Stop reading buffer before we have an incomplete var_name
 		size_t endOffset = bytesRead - cvarDef.size();
 
 		// CryCVar structs are aligned on multiples of 16 bytes inside pages
 		for (size_t offset = 0; offset < endOffset; offset += 16)
 		{
-			// It's ok to alias to CryEngineCVar* here since g_LookupBuffer is buffer of std::byte
-			// and this type is an exception to the C/C++ aliasing rules
-			const auto cvarInBuffer =
-				static_cast<cryengine::cvar*>(static_cast<void*>(buffer.data() + offset));
+			// It's ok to alias to CryEngineCVar* here since g_LookupBuffer is
+			// buffer of std::byte and this type is an exception to the C/C++
+			// aliasing rules
+			const auto cvarInBuffer = static_cast<cry::cvar*>(
+				static_cast<void*>(buffer.data() + offset));
 			if (cvarDef.match(cvarInBuffer))
 			{
-				const auto cvarReadAddress =
-					static_cast<cryengine::cvar*>(static_cast<void*>(currentReadAddress + offset));
+				const auto cvarReadAddress = static_cast<cry::cvar*>(
+					static_cast<void*>(currentReadAddress + offset));
 				return cvarReadAddress;
 			}
 		}
@@ -78,18 +81,23 @@ static cryengine::cvar* LookupPage(
 	return nullptr;
 }
 
-cryengine::cvar* find_cvar_ptr(
-	const cryengine::cvar_pattern& cvarDef, std::vector<std::byte>& buffer)
+cry::cvar* find_cvar_ptr(
+	const cry::cvar::pattern& cvarDef,
+	std::vector<std::byte>& buffer)
 {
 	const std::byte* readAddress = nullptr;
 	MEMORY_BASIC_INFORMATION memoryBasicInformation{};
-	cryengine::cvar* cvarPtr = nullptr;
+	cry::cvar* cvarPtr = nullptr;
 
-	trace("find_cvar_ptr: Start of memory scan for variable {}", cvarDef.name());
+	log::trace(
+		"find_cvar_ptr: Start of memory scan for variable {}",
+		cvarDef.name());
 
 	for (;;)
 	{
-		trace("Calling VirtualQueryEx with base address {}", static_cast<const void*>(readAddress));
+		log::trace(
+			"Calling VirtualQueryEx with base address {}",
+			static_cast<const void*>(readAddress));
 
 		if (!::VirtualQueryEx(
 				::GetCurrentProcess(),
@@ -97,7 +105,9 @@ cryengine::cvar* find_cvar_ptr(
 				&memoryBasicInformation,
 				sizeof(MEMORY_BASIC_INFORMATION)))
 		{
-			debug("VirtualQueryEx failed: {}", WinUtils::GetLastErrorAsString());
+			log::debug(
+				"VirtualQueryEx failed: {}",
+				win::get_last_error_as_string());
 			break;
 		}
 
@@ -106,7 +116,7 @@ cryengine::cvar* find_cvar_ptr(
 			(memoryBasicInformation.Protect == PAGE_READWRITE ||
 			 memoryBasicInformation.Protect == PAGE_EXECUTE_READWRITE))
 		{
-			trace(
+			log::trace(
 				"Candidate region at: {} - {:d} bytes - Scanning...",
 				static_cast<void*>(memoryBasicInformation.BaseAddress),
 				memoryBasicInformation.RegionSize);
@@ -115,13 +125,13 @@ cryengine::cvar* find_cvar_ptr(
 
 			if (cvarPtr)
 			{
-				trace("Found CryEngine CVar!");
+				log::trace("Found CryEngine CVar!");
 				break;
 			}
 		}
 		else
 		{
-			trace(
+			log::trace(
 				"Non-candidate region at: {} - {:d} bytes - Ignoring",
 				static_cast<void*>(memoryBasicInformation.BaseAddress),
 				memoryBasicInformation.RegionSize);
@@ -141,12 +151,12 @@ cryengine::cvar* find_cvar_ptr(
 
 		if (nextAddress >= reinterpret_cast<const std::byte*>(VirtualMemoryMax))
 		{
-			trace("Reached end of user-mode address space!");
+			log::trace("Reached end of user-mode address space!");
 			break;
 		}
 		else if (nextAddress <= readAddress)
 		{
-			trace("nextAddress <= readAddress - wtf!");
+			log::trace("nextAddress <= readAddress - wtf!");
 			break;
 		}
 		else
@@ -155,7 +165,7 @@ cryengine::cvar* find_cvar_ptr(
 		}
 	}
 
-	trace("find_cvar_ptr: End of memory scan");
+	log::trace("find_cvar_ptr: End of memory scan");
 
 	return cvarPtr;
 }

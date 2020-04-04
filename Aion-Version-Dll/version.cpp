@@ -10,7 +10,7 @@
 #include <winsock2.h>
 #include "detours.h"
 
-#include "shugoconsole.hpp"
+#include <shugoconsole/shugoconsole.hpp>
 
 static const char s_ipToReplace[16] = "70.5.0.18";
 static char s_serverIp[16] = "";
@@ -395,7 +395,7 @@ void InstallPatch()
     LONG error = DetourTransactionCommit();
 }
 
-static std::unique_ptr<shugoconsole::base_instance> g_ShugoConsole;
+static std::unique_ptr<shugoconsole::instance> g_ShugoConsole;
 
 BOOL WINAPI DllMain(_In_ HINSTANCE hinstDLL, _In_ DWORD fdwReason, _In_ LPVOID lpvReserved)
 {

@@ -9,17 +9,26 @@ target_include_directories(ShugoConsole
 )
 target_sources(ShugoConsole
 	PRIVATE
-	shugoconsole.cpp
-	shugoconsole.hpp
-	cryengine_cvar.cpp
-	cryengine_cvar.hpp
-	win_utils.cpp
-	win_utils.hpp
-	memory_parser.cpp
-	memory_parser.hpp
-	logger.cpp
-	logger.hpp
+	src/shugoconsole/shugoconsole.cpp
+	src/shugoconsole/shugoconsole.hpp
+	src/shugoconsole/cry/cvar.cpp
+	src/shugoconsole/cry/cvar.hpp
+	src/shugoconsole/cry/memory.cpp
+	src/shugoconsole/cry/memory.hpp
+	src/shugoconsole/win/utils.cpp
+	src/shugoconsole/win/utils.hpp
+	src/shugoconsole/win/file_monitor.cpp
+	src/shugoconsole/win/file_monitor.hpp
+	src/shugoconsole/win/dllmain_thread.cpp
+	src/shugoconsole/win/dllmain_thread.hpp
+	src/shugoconsole/log.cpp
+	src/shugoconsole/log.hpp
+	src/shugoconsole/config.cpp
+	src/shugoconsole/config.hpp
 )
+
+target_include_directories(ShugoConsole PUBLIC src)
+
 target_compile_definitions(ShugoConsole
 	PRIVATE
 	-D_WIN32_WINNT=0x0601
@@ -40,6 +49,7 @@ target_link_libraries(ShugoConsole
 	fmt::fmt
 	spdlog::spdlog
 	toml11::toml11
+	outcome::outcome
 )
 
 #######################################################################
@@ -49,7 +59,7 @@ target_link_libraries(ShugoConsole
 add_executable(TestShugoConsole)
 target_sources(TestShugoConsole
 	PRIVATE
-	test.cpp
+	src/test.cpp
 )
 target_link_libraries(TestShugoConsole
 	PRIVATE

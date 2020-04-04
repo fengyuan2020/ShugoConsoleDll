@@ -1,0 +1,1 @@
+#include "shugoconsole/config.hpp"

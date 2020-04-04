@@ -1,4 +1,4 @@
-#include "shugoconsole.hpp"
+#include <shugoconsole/shugoconsole.hpp>
 
 int main()
 {

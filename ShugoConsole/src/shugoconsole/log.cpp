@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include "shugoconsole/log.hpp"
 
 #include <filesystem>
 
@@ -12,13 +12,13 @@ namespace shugoconsole::log
 {
 void setup_logger()
 {
-	const auto log_dir = std::filesystem::temp_directory_path() / L"shugoconsole";
+	const auto log_dir = std::filesystem::temp_directory_path() / L"ShugoConsole";
 
 	std::error_code ec;
 	std::filesystem::create_directories(log_dir, ec);
 
 	const auto log_name =
-		fmt::format(L"shugoconsole_{}.log", ::GetProcessId(::GetCurrentProcess()));
+		fmt::format(L"log_{}.log", ::GetProcessId(::GetCurrentProcess()));
 	const auto log_path = log_dir / log_name;
 
 	const auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(

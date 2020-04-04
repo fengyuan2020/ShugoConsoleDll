@@ -5,14 +5,16 @@
 
 namespace shugoconsole
 {
+
 // The only thing you can do with a ShugoConsole interface is destroy it
-class base_instance
+class instance
 {
-  public:
-	virtual ~base_instance();
+public:
+	virtual ~instance();
 };
 
-[[nodiscard]] std::unique_ptr<base_instance> create();
+[[nodiscard]] std::unique_ptr<instance> create();
+
 } // namespace shugoconsole
 
 #endif // SHUGOCONSOLE_HPP
