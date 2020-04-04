@@ -34,6 +34,9 @@ add_subdirectory(libs/toml11)
 # detours
 add_subdirectory(libs/detours_cmake)
 
+# outcome
+add_subdirectory(libs/outcome)
+
 #######################################################################
 # Projects
 #######################################################################
