@@ -9,6 +9,14 @@ project(ShugoConsoleDll
 # Global variables
 #######################################################################
 
+# Parallel build with Visual Studio generator
+if(CMAKE_GENERATOR MATCHES "Visual Studio" AND
+  (CMAKE_C_COMPILER_ID MATCHES "MSVC|Intel" OR
+  CMAKE_CXX_COMPILER_ID MATCHES "MSVC|Intel"))
+	string(APPEND CMAKE_C_FLAGS " /MP")
+	string(APPEND CMAKE_CXX_FLAGS " /MP")
+endif()
+
 # Force using static runtime
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
